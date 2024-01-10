@@ -1,232 +1,237 @@
-//OPERACIONES DE FORWARD LIST
-
+//Operaciones double linked list
 #include <iostream>
 using namespace std;
-
 template<typename T>
 struct Node {
     T data;
+    Node* prev;
     Node* next;
 
-    Node(const T& newData) : data(newData), next(nullptr) {}
+    Node(const T& data_) : data(data_), prev(nullptr), next(nullptr) {}
 };
 
-
-template <typename T>
-class ForwardList {
+template<typename T>
+class DoubleLinkedList {
 private:
     Node<T>* head;
+    Node<T>* tail;
 
 public:
-    ForwardList() : head(nullptr) {}
+    DoubleLinkedList() : head(nullptr), tail(nullptr) {}
 
     T front() {
         if (empty()) {
-            cout << "Lista vacia";
+            cout << "Lista vacia"<<endl;
         }
         return head->data;
     }
 
     T back() {
         if (empty()) {
-            cout << "Lista vacia";
+            cout << "Lista vacia"<<endl;
+        }
+        return tail->data;
+    }
+
+    void push_front(T value) {
+        Node<T>* nuevo = new Node<T>(value);
+        if (empty()) {
+            head = tail = nuevo;
+        } else {
+            nuevo->next = head;
+            head->prev = nuevo;
+            head = nuevo;
+        }
+    }
+
+    void push_back(T value) {
+        Node<T>* nuevo = new Node<T>(value);
+        if (empty()) {
+            head = tail = nuevo;
+        } else {
+            tail->next = nuevo;
+            nuevo->prev = tail;
+            tail = nuevo;
+        }
+    }
+
+    T pop_front() {
+        if (empty()) {
+            cout<<"Lista vacia"<<endl;
+        }
+        T value = head->data;
+        Node<T>* temp = head;
+        if (head == tail) {
+            head = tail = nullptr;
+        } else {
+            head = head->next;
+            head->prev = nullptr;
+        }
+        delete temp;
+        return value;
+    }
+
+    T pop_back() {
+        if (empty()) {
+            cout<<"Lista vacia"<<endl;
+        }
+        T value = tail->data;
+        Node<T>* temp = tail;
+        if (head == tail) {
+            head = tail = nullptr;
+        } else {
+            tail = tail->prev;
+            tail->next = nullptr;
+        }
+        delete temp;
+        return value;
+    }
+
+    int size() {
+        int contador = 0;
+        Node<T>* temp = head;
+        while (temp != nullptr) {
+            ++contador;
+            temp = temp->next;
+        }
+        return contador;
+    }
+
+    void insert(T valor, int pos) {
+        if (pos < 0 || pos > size()) {
+            throw std::out_of_range("Invalid position");
+        }
+        if (pos == 0) {
+            push_front(valor);
+        } else if (pos == size()) {
+            push_back(valor);
+        } else {
+            Node<T>* newNode = new Node<T>(valor);
+            Node<T>* current = head;
+            for (int i = 0; i < pos - 1; ++i) {
+                current = current->next;
+            }
+            newNode->next = current->next;
+            newNode->prev = current;
+            current->next->prev = newNode;
+            current->next = newNode;
+        }
+    }
+
+    void remove(int pos) {
+        if (pos < 0 || pos >= size()) {
+            throw std::out_of_range("Invalid position");
+        }
+        if (pos == 0) {
+            pop_front();
+        } else if (pos == size() - 1) {
+            pop_back();
+        } else {
+            Node<T>* current = head;
+            for (int i = 0; i < pos; ++i) {
+                current = current->next;
+            }
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
+            delete current;
+        }
+    }
+
+    T operator[](int index) {
+        if (index < 0 || index >= size()) {
+            cout<<"Indice fuera de rango"<<endl;
         }
         Node<T>* temp = head;
-        while (temp->next != nullptr) {
+        for (int i = 0; i < index; ++i) {
             temp = temp->next;
         }
         return temp->data;
     }
-    void push_front(T value) {
-        Node<T>* newNode = new Node<T>(value);
-        newNode->next = head;
-        head = newNode;
+
+    bool empty() {
+        return size() == 0;
     }
 
-    void push_back(T value) {
-        Node<T>* newNode = new Node<T>(value);
-        if (empty()) {
-            head = newNode;
-        } else {
-            Node<T>* current = head;
-            while (current->next != nullptr) {
-                current = current->next;
-            }
-            current->next = newNode;
-        }
-    }
-    T pop_front() {
-        if (empty()) {
-            cout << "Lista vacia";
-        }
-        Node<T>* temp = head;
-        T value = temp->data;
-        head = head->next;
-        delete temp;
-        return value;
-    }
-    T pop_back() {
-        if (empty()) {
-            cout << "Lista vacia";
-        }
-        if (head->next == nullptr) {
-            return pop_front();
-        }
-        Node<T>* current = head;
-        Node<T>* prev = nullptr;
-        while (current->next != nullptr) {
-            prev = current;
-            current = current->next;
-        }
-        T value = current->data;
-        prev->next = nullptr;
-        delete current;
-        return value;
-    }
-    T operator[](int index) {
-        if (empty()) {
-            cout << "Lista vacia";
-        }
-        Node<T>* current = head;
-        for (int i = 0; i < index; ++i) {
-            if (current == nullptr) {
-                cout << "Indice fuera de rango";
-            }
-            current = current->next;
-        }
-        if (current == nullptr) {
-            cout << "Indice fuera de rango";
-        }
-        return current->data;
-    }
-    bool empty() {
-        return head == nullptr;
-    }
     void clear() {
         while (!empty()) {
             pop_front();
         }
     }
-    void sort() { //se uso bubblesort
-        if (head == nullptr || head->next == nullptr) {
+
+    void reverse() {
+        if (empty() || head == tail) {
             return;
         }
-
-        bool swapped;
-        Node<T>* current;
-        T temp;
-
-        do {
-            swapped = false;
-            current = head;
-
-            while (current->next != nullptr) {
-                if (current->data > current->next->data) {
-                    temp = current->data;
-                    current->data = current->next->data;
-                    current->next->data = temp;
-                    swapped = true;
-                }
-                current = current->next;
+        Node<T>* current = head;
+        while (current != nullptr) {
+            Node<T>* temp = current->next;
+            current->next = current->prev;
+            current->prev = temp;
+            if (current->prev == nullptr) {
+                break;
             }
-        } while (swapped);
+            current = current->prev;
+        }
+        Node<T>* temp = head;
+        head = tail;
+        tail = temp;
     }
 
-void reverse() {
-        Node<T>* prev = nullptr;
-        Node<T>* current = head;
-        Node<T>* next = nullptr;
-            while (current != nullptr) {
-                next = current->next;
-                current->next = prev;
-                prev = current;
-                current = next;
-            }
-
-            head = prev;
-        }
-
-        // Destructor para liberar la memoria utilizada por los nodos
-        ~ForwardList() {
-            clear();
-        }
-        void print_list(){
+    void print_list(){
         Node<T>* temp = head;
-            while (temp != nullptr){
-                cout<<temp->data<<" ";
-                temp = temp->next;
-            }
-            cout<<endl;
+        while (temp != nullptr){
+            cout<<temp->data<<" ";
+            temp = temp->next;
+        }
+        cout<<endl;
+    }
+
+    ~DoubleLinkedList() {
+        clear();
     }
 };
 
-
 int main() {
-    ForwardList<int> forward_list;
-    forward_list.push_back(1);
-    forward_list.push_back(2);
-    forward_list.push_back(3);
-    forward_list.push_back(4);
-    forward_list.push_back(5);
+    DoubleLinkedList<int> lista_doble;
+    lista_doble.push_back(1);
+    lista_doble.push_back(2);
+    lista_doble.push_back(3);
+    lista_doble.push_back(4);
 
-    cout<< "Lista despues de push_back: "<<endl;
-    forward_list.print_list();
-
-    cout<<endl;
-
-    forward_list.push_front(0);
-    forward_list.push_front(6);
-
-    cout<< "Lista despues de push_front: "<<endl;
-    forward_list.print_list();
+    cout<<"Lista despues de push_back: "<<endl;
+    lista_doble.print_list();
 
     cout<<endl;
 
-    cout << "Front: " << forward_list.front() << endl;
-    cout << "Back: " << forward_list.back() << endl;
+    cout << "Front: " << lista_doble.front() << endl;
+    cout << "Back: " << lista_doble.back() << endl;
 
     cout<<endl;
 
-    forward_list.pop_back();
-    cout<< "Lista despues de pop_back: "<<endl;
-    forward_list.print_list();
+    lista_doble.insert(4, 1);
+    cout<<"Lista despues de insert(4,1): "<<endl;
+    lista_doble.print_list();
 
     cout<<endl;
 
-    forward_list.pop_front();
-    cout<< "Lista despues de pop_front: "<<endl;
-    forward_list.print_list();
+    lista_doble.remove(2);
+    cout<<"Lista despues de remove(2): "<<endl;
+    lista_doble.print_list();
 
     cout<<endl;
 
-    cout << "Front: " << forward_list.front() << std::endl;
-    cout << "Back: " << forward_list.back() << std::endl;
+    cout << "Size: " << lista_doble.size() << endl;
+    cout<<endl;
+    cout << "Uso de operador [], lista_doble[1] : " << lista_doble[1] << endl;
+
+    cout << "Lista: "<<endl;
+    lista_doble.print_list();
 
     cout<<endl;
+    lista_doble.reverse();
 
-    forward_list.reverse();
-    cout << "Lista despues de reverse: "<<endl;
-    forward_list.print_list();
-
-    cout<<endl;
-
-    forward_list.sort();
-    cout << "Lista despues de sort: "<<endl;
-    forward_list.print_list();
-
-    cout<<endl;
-
-    cout<< "Uso de operador '[]':"<<endl;
-    cout<<"forward_list[0]: "<< forward_list[0]<<endl;
-    cout<<"forward_list[1]: "<< forward_list[1]<<endl;
-
-    cout<<endl;
-
-    forward_list.clear();
-    cout << "lista despues de clear: "<<endl;
-    forward_list.print_list();
-
-    cout<<endl;
+    cout << "Lista despues de reverse(): "<<endl;
+    lista_doble.print_list();
 
     return 0;
 }
