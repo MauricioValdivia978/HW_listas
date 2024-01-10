@@ -1,3 +1,5 @@
+//OPERACIONES DE FORWARD LIST
+
 #include <iostream>
 using namespace std;
 
@@ -20,14 +22,14 @@ public:
 
     T front() {
         if (empty()) {
-            throw out_of_range("Lista vacia");
+            cout << "Lista vacia";
         }
         return head->data;
     }
 
     T back() {
         if (empty()) {
-            throw out_of_range("List vacia");
+            cout << "Lista vacia";
         }
         Node<T>* temp = head;
         while (temp->next != nullptr) {
@@ -55,7 +57,7 @@ public:
     }
     T pop_front() {
         if (empty()) {
-            throw std::out_of_range("List is empty");
+            cout << "Lista vacia";
         }
         Node<T>* temp = head;
         T value = temp->data;
@@ -65,7 +67,7 @@ public:
     }
     T pop_back() {
         if (empty()) {
-            throw std::out_of_range("List is empty");
+            cout << "Lista vacia";
         }
         if (head->next == nullptr) {
             return pop_front();
@@ -83,17 +85,17 @@ public:
     }
     T operator[](int index) {
         if (empty()) {
-            throw std::out_of_range("List is empty");
+            cout << "Lista vacia";
         }
         Node<T>* current = head;
         for (int i = 0; i < index; ++i) {
             if (current == nullptr) {
-                throw std::out_of_range("Index out of range");
+                cout << "Indice fuera de rango";
             }
             current = current->next;
         }
         if (current == nullptr) {
-            throw std::out_of_range("Index out of range");
+            cout << "Indice fuera de rango";
         }
         return current->data;
     }
@@ -211,6 +213,12 @@ int main() {
     forward_list.sort();
     cout << "Lista despues de sort: "<<endl;
     forward_list.print_list();
+
+    cout<<endl;
+
+    cout<< "Uso de operador '[]':"<<endl;
+    cout<<"forward_list[0]: "<< forward_list[0]<<endl;
+    cout<<"forward_list[1]: "<< forward_list[1]<<endl;
 
     cout<<endl;
 
