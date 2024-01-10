@@ -99,7 +99,7 @@ public:
 
     void insert(T valor, int pos) {
         if (pos < 0 || pos > size()) {
-            throw std::out_of_range("Invalid position");
+            cout<<"posicion fuera de rango";
         }
         if (pos == 0) {
             push_front(valor);
@@ -120,7 +120,7 @@ public:
 
     void remove(int pos) {
         if (pos < 0 || pos >= size()) {
-            throw std::out_of_range("Invalid position");
+            cout<<"posicion fuera de rango";
         }
         if (pos == 0) {
             pop_front();
